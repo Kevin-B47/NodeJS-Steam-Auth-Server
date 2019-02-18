@@ -2,6 +2,7 @@
 
 var SessionModel = require('../mongo/schemas/session_schema');
 var OpenIDStrategy = require('passport-openid').Strategy;
+var CFG = require('../../config');
 
 var SteamStrategy = new OpenIDStrategy(
 	{
@@ -9,8 +10,8 @@ var SteamStrategy = new OpenIDStrategy(
 		providerURL: 'http://steamcommunity.com/openid',
 		stateless: true,
 		// How the OpenID provider should return the client to us
-		returnURL: 'http://localhost:3000/auth/return',
-		realm: 'http://localhost:3000/',
+		returnURL: CFG.OPENID_RETURN_URL,
+		realm: CFG.OPENID_REALM_URL,
 		passReqToCallback: true
 	},
 	// Validation callback

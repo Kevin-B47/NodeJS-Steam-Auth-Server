@@ -11,4 +11,7 @@ This project uses Express, Mongoose, Mongo-Sessions and a few other dependencies
  - /auth/logout (destroys session data)
  - / (index acts like /auth/get)
 ## .ENV & Configuration
-If you have make a .env file at the root, you can override the config.js file. This is create for things like container support.
+If you have make a .env file at the root, you can override the config.js file. This is create for things like container support. I have included a dummy enviroment file with all of the current config options so you don't have to go searching for them.
+
+## Docker
+The dockerfile assumes you already have a mongodb service somewhere
