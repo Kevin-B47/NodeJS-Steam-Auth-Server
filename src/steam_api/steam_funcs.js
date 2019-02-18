@@ -1,7 +1,7 @@
 var axios = require('axios');
 var SteamID = require('steamid');
-var mongo_funcs = require('../mongo/session_funcs');
-var CFG = require('../config');
+var SessionModel = require('../mongo/schemas/session_schema');
+var CFG = require('../../config');
 
 const steamapiKey = CFG.STEAM_API_KEY;
 
@@ -66,9 +66,9 @@ const getSteamDataFromSteam64 = async (steam64) => {
 };
 
 const getSteamDataFromSessionID = async (sessionID, reqIP) => {
-	const data = await mongo_funcs
-		.getDataFromSessionID(sessionID)
-		.catch((err) => console.log(`Error when getting steamdata from session ${sessionID}`));
+	const data = await SessionModel.getDataFromSessionID(sessionID).catch((err) =>
+		console.log(`Error when getting steamdata from session ${sessionID}`)
+	);
 	if (!data) {
 		return null;
 	}
@@ -83,9 +83,9 @@ const getSteamDataFromSessionID = async (sessionID, reqIP) => {
 		console.log(
 			`Error, deleting session due to possible invalid properites. Found IP: ${ip} Req IP: ${reqIP} steam64: ${steam64}`
 		);
-		await mongo_funcs
-			.deleteSession(sessionID)
-			.catch((err) => console.log(`Error when deleing invalid session ${steam64} ${sessionID}`));
+		await SessionModel.deleteSession(sessionID).catch((err) =>
+			console.log(`Error when deleing invalid session ${steam64} ${sessionID}`)
+		);
 		return null;
 	}
 

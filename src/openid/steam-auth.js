@@ -1,6 +1,6 @@
 // Got the setup from https://codepen.io/johnchristopherjones/post/setting-up-openid thanks!
 
-var SessionModel = require('../mongo/session_funcs');
+var SessionModel = require('../mongo/schemas/session_schema');
 var OpenIDStrategy = require('passport-openid').Strategy;
 
 var SteamStrategy = new OpenIDStrategy(

@@ -6,14 +6,14 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 
-var indexRouter = require('./routes/index');
-var authRouter = require('./routes/auth');
-var mongoStore = require('./mongo/mongo_store');
-var mongodb = require('./mongo/mongo_db');
+var indexRouter = require('./src/routes/index');
+var authRouter = require('./src/routes/auth');
+var mongoStore = require('./src/mongo/mongo_store');
+var mongodb = require('./src/mongo/mongo_db');
 
 var app = express();
 
-var openidPassport = require('./openid/steam-auth');
+var openidPassport = require('./src/openid/steam-auth');
 app.use(openidPassport.initialize());
 app.use(openidPassport.session());
 
