@@ -10,6 +10,4 @@ function MakeURI() {
 	}
 }
 
-console.log(MakeURI());
-
 module.exports = MakeURI;

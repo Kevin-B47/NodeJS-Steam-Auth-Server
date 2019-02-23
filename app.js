@@ -1,9 +1,12 @@
 var createError = require('http-errors');
 var express = require('express');
+var cors = require('cors');
 const session = require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+
+var CFG = require('./config');
 
 var indexRouter = require('./src/routes/index');
 var authRouter = require('./src/routes/auth');
@@ -11,12 +14,11 @@ var mongoStore = require('./src/mongo/mongo_store');
 var mongodb = require('./src/mongo/mongo_db');
 
 var app = express();
+app.use(cors({ origin: CFG.CORS_ORIGIN, credentials: true }));
 
 var openidPassport = require('./src/openid/steam-auth');
 app.use(openidPassport.initialize());
 app.use(openidPassport.session());
-
-var CFG = require('./config');
 
 app.use(
 	session({

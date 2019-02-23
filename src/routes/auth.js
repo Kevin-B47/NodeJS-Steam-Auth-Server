@@ -41,9 +41,9 @@ router.get('/return', steamAuth.authenticate('openid', { successRedirect: '/', f
 ) {
 	const { identifier, steamId } = req.user;
 	if (identifier && steamId) {
-		return res.redirect('/');
+		return res.redirect(CFG.AUTH_SUCCESS_REDIRECT);
 	} else {
-		return res.redirect(400, '/');
+		return res.redirect(400, CFG.AUTH_FAILURE_REDIRECT);
 	}
 });
 module.exports = router;

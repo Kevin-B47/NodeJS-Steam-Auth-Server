@@ -28,6 +28,11 @@ model.getDataFromSessionID = async function(sessionId) {
 	const data = await this.findOne({ _id: sessionId }).catch((err) =>
 		console.log(`Error when fetching data with sessionid ${sessionId}}`)
 	);
+
+	if (!data) {
+		return null;
+	}
+
 	const { session } = data;
 
 	const passport = session ? session.passport : null;
