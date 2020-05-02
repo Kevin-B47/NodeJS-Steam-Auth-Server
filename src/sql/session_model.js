@@ -2,6 +2,7 @@ const CFG = require('../../config');
 const DBObj = require('./connectors');
 const db = new DBObj();
 
+// Most likely not needed but its here
 module.exports = class Session {
 	constructor(sessionId) {
 		this.sessionId = sessionId;
