@@ -1,49 +1,50 @@
 var express = require('express');
 var router = express.Router();
 var steamAuth = require('../openid/steam-auth');
+var Session = require('../sql/session_model');
 var Steam_API = require('../steam_api/steam_funcs');
 
-router.get('/login', steamAuth.authenticate('openid'));
+router.get('/login', steamAuth.authenticate('steam'));
 
 router.get('/logout', async function(req, res) {
-	if (req.session && req.sessionID) {
-		const steamData = await Steam_API.getSteamDataFromSessionID(req.sessionID, req.ip).catch((err) =>
-			console.log(`Error when logging out ${err}`)
-		);
-
-		if (steamData) {
-			req.session.destroy();
-			return res.send({ msg: 'You have sucessfully logged out' });
-		}
-	}
-	return res.send({ msg: 'No need to logout' });
-});
-
-router.get('/get', async function(req, res, next) {
-	if (req.sessionID) {
-		const steamData = await Steam_API.getSteamDataFromSessionID(req.sessionID, req.ip).catch((err) =>
-			console.log(`Error when using get route ${err}`)
-		);
-
-		if (!steamData) {
-			return res.status(401).send({ error: 'No data found' });
-		}
-
-		return res.status(200).send(steamData);
+	if (req.isAuthenticated()) {
+		const session = new Session(req.sessionID);
+		session.delete().catch((err) => console.log(err));
+		req.logout();
+		res.status(200).json({ msg: 'C u l8tr' });
 	} else {
-		return res.status(204).send('');
+		res.status(403).json({ error: 'false' });
 	}
 });
 
-router.get('/return', steamAuth.authenticate('openid', { successRedirect: '/', failureRedirect: '/' }), function(
-	req,
-	res
-) {
-	const { identifier, steamId } = req.user;
-	if (identifier && steamId) {
-		return res.redirect(CFG.AUTH_SUCCESS_REDIRECT);
-	} else {
-		return res.redirect(400, CFG.AUTH_FAILURE_REDIRECT);
-	}
+router.get('/get', ensureAuthenticated, async function(req, res, next) {
+	return res.status(200).json(Steam_API.getFromUser(req.user));
 });
+
+router.get(
+	'/return',
+	// Issue #37 - Workaround for Express router module stripping the full url, causing assertion to fail
+	function(req, res, next) {
+		req.url = req.originalUrl;
+		next();
+	},
+	steamAuth.authenticate('steam', { failureRedirect: '/' }),
+	function(req, res) {
+		res.redirect('/');
+	}
+);
+
+function ensureAuthenticated(req, res, next) {
+	const isAuthed = req.isAuthenticated();
+	if (isAuthed && req.ip === req.user.ip) {
+		return next();
+	} else if (isAuthed) {
+		console.log(`${req.ip} didn't match ${req.user.ip} terminating session for ${JSON.stringify(req.user)}`);
+		req.logout();
+		const session = new Session(req.sessionId);
+		session.delete().catch((err) => console.log(err));
+	}
+	return res.status(401).json({ error: 'false' });
+}
+
 module.exports = router;

@@ -1,18 +1,12 @@
 var express = require('express');
 var router = express.Router();
-var Steam_API = require('../steam_api/steam_funcs');
 
-router.get('/', async function(req, res, next) {
-	if (req.sessionID) {
-		const steamData = await Steam_API.getSteamDataFromSessionID(req.sessionID, req.ip).catch((err) =>
-			console.log(`Error when fetching index ${err}`)
-		);
-
-		if (steamData) {
-			return res.send(steamData);
-		}
+router.get('/', function(req, res, next) {
+	if (req.isAuthenticated()) {
+		return res.status(200).json({ message: `Hey ${req.user.name}, how you doin` });
+	} else {
+		return res.status(200).json({ message: 'Hey baby, how you doin' });
 	}
-	return res.status(401).send('You have no session data!');
 });
 
 module.exports = router;

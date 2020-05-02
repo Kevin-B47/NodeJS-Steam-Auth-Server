@@ -1,48 +1,55 @@
 // Got the setup from https://codepen.io/johnchristopherjones/post/setting-up-openid thanks!
-
-var SessionModel = require('../mongo/schemas/session_schema');
-var OpenIDStrategy = require('passport-openid').Strategy;
+var SteamStrategy = require('passport-steam').Strategy;
 var CFG = require('../../config');
-
-var SteamStrategy = new OpenIDStrategy(
-	{
-		// OpenID provider configuration
-		providerURL: 'http://steamcommunity.com/openid',
-		stateless: true,
-		// How the OpenID provider should return the client to us
-		returnURL: CFG.OPENID_RETURN_URL,
-		realm: CFG.OPENID_REALM_URL,
-		passReqToCallback: true
-	},
-	// Validation callback
-	async function(req, identifier, done) {
-		let steamid = identifier.match(/\d+$/)[0];
-
-		var user = { identifier: identifier, steamId: steamid, ip: req.ip };
-
-		if (typeof steamid === 'undefined' || steamid == null) {
-			return done(null, false, { message: 'Error logging in' });
-		}
-
-		await SessionModel.deleteAllWithSameSteamID(steamid); // Clear all sessions with same steamid
-
-		done(null, user); // Insert session
-
-		await SessionModel.updateSessionWithIP(steamid, req.ip); // Update it with IP to add another layer of security
-	}
-);
 var passport = require('passport');
-passport.use(SteamStrategy);
+var SteamHelper = require('steamid');
+
+passport.use(
+	new SteamStrategy(
+		{
+			// OpenID provider configuration
+			providerURL: 'http://steamcommunity.com/openid',
+			returnURL: CFG.OPENID_RETURN_URL,
+			realm: CFG.OPENID_REALM_URL,
+			apiKey: CFG.STEAM_API_KEY,
+			passReqToCallback: true
+		},
+		// Validation callback
+		async function(req, identifier, profile, done) {
+			process.nextTick(function() {
+				if (!profile || !profile._json) {
+					return done(null, false, { message: 'Invalid login' });
+				}
+
+				const { steamid, personaname } = profile._json;
+
+				const steamData = new SteamHelper(steamid);
+
+				if (!steamData.isValid()) {
+					console.log(steamid + 'was invalid??');
+					return done(null, false, { message: 'Invalid login' });
+				}
+
+				const store = {
+					steam64: steamid,
+					steamid: steamData.getSteam2RenderedID(),
+					name: personaname,
+					ip: req.ip,
+					identifier: identifier
+				};
+
+				return done(null, store);
+			});
+		}
+	)
+);
 
 passport.serializeUser(function(user, done) {
-	done(null, user.steamId);
+	done(null, user);
 });
 
-passport.deserializeUser(function(identifier, done) {
-	done(null, {
-		identifier: identifier,
-		steamId: identifier.match(/\d+$/)[0]
-	});
+passport.deserializeUser(function(obj, done) {
+	done(null, obj);
 });
 
 module.exports = passport;

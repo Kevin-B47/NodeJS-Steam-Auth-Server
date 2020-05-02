@@ -1,41 +1,48 @@
 var createError = require('http-errors');
 var express = require('express');
 var cors = require('cors');
-const session = require('express-session');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var DB = require('./src/sql/connectors');
 
 var CFG = require('./config');
 
 var indexRouter = require('./src/routes/index');
 var authRouter = require('./src/routes/auth');
-var mongoStore = require('./src/mongo/mongo_store');
-var mongodb = require('./src/mongo/mongo_db');
+
+const session = require('express-session');
+var MySQLStore = require('express-mysql-session')(session);
+const db = new DB();
+var sessionStore = new MySQLStore(db.details());
+
+db.connection().connect((err) => {
+	if (err) {
+		console.log(`DB ERROR: ${err}`);
+	} else {
+		console.log('DB Connection was successful');
+	}
+});
 
 var app = express();
 app.use(cors({ origin: CFG.CORS_ORIGIN, credentials: true }));
 
 var openidPassport = require('./src/openid/steam-auth');
-app.use(openidPassport.initialize());
-app.use(openidPassport.session());
 
 app.use(
 	session({
 		secret: CFG.SESSION_SECRET,
 		cookie: {
-			maxAge: 1000 * 60 * 60 * 24 * 7
+			maxAge: Number(CFG.EXPIRATION)
 		},
-		store: mongoStore,
-
-		saveUninitialized: true,
-		resave: false
+		store: sessionStore,
+		saveUninitialized: false,
+		resave: true
 	})
 );
 
-// view engine setup
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
+app.use(openidPassport.initialize());
+app.use(openidPassport.session());
 
 app.use(logger('dev'));
 app.use(express.json());
@@ -54,12 +61,12 @@ app.use(function(req, res, next) {
 // error handler
 app.use(function(err, req, res, next) {
 	// set locals, only providing error in development
-	res.locals.message = err.message;
-	res.locals.error = req.app.get('env') === 'development' ? err : {};
-
-	// render the error page
 	res.status(err.status || 500);
-	res.render('error');
+	if (CFG.SHOW_ERRORS === 'true') {
+		res.json({ error: err.message });
+	} else {
+		res.json({ error: 'Internal Error' });
+	}
 });
 
 module.exports = app;
