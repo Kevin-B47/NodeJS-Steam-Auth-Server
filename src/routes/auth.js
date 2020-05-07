@@ -3,7 +3,7 @@ var router = express.Router();
 var steamAuth = require('../openid/steam-auth');
 var Session = require('../sql/session_model');
 var Steam_API = require('../steam_api/steam_funcs');
-
+var CFG = require('../../config');
 router.get('/login', steamAuth.authenticate('steam'));
 
 router.get('/logout', async function(req, res) {
@@ -30,7 +30,7 @@ router.get(
 	},
 	steamAuth.authenticate('steam', { failureRedirect: '/' }),
 	function(req, res) {
-		res.redirect('/');
+		res.redirect(CFG.SHOP_URL);
 	}
 );
 

@@ -48,7 +48,8 @@ if (fs.existsSync('.env')) {
 		CLEAR_EXPIRED,
 		OPENID_RETURN_URL,
 		OPENID_REALM_URL,
-		CORS_ORIGIN
+		CORS_ORIGIN,
+		SHOP_URL
 	} = process.env;
 
 	module.exports = {
@@ -67,7 +68,8 @@ if (fs.existsSync('.env')) {
 		CLEAR_EXPIRED,
 		OPENID_RETURN_URL,
 		OPENID_REALM_URL,
-		CORS_ORIGIN
+		CORS_ORIGIN,
+		SHOP_URL
 	};
 } else {
 	module.exports = CFG[process.env.NODE_ENV] || CFG.development;

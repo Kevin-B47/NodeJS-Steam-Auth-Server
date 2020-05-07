@@ -4,11 +4,12 @@ var CFG = require('../../config');
 
 const getFromUser = (user) => {
 	if (typeof user !== 'undefined') {
-		const { steamid, steam64, name } = user;
+		const { steamid, steam64, name, avatar } = user;
 		return {
 			steamid,
 			steam64,
-			name
+			name,
+			avatar
 		};
 	}
 };

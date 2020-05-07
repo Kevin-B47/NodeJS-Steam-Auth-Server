@@ -21,7 +21,7 @@ passport.use(
 					return done(null, false, { message: 'Invalid login' });
 				}
 
-				const { steamid, personaname } = profile._json;
+				const { steamid, personaname, avatarfull } = profile._json;
 
 				const steamData = new SteamHelper(steamid);
 
@@ -34,6 +34,7 @@ passport.use(
 					steam64: steamid,
 					steamid: steamData.getSteam2RenderedID(),
 					name: personaname,
+					avatar: avatarfull,
 					ip: req.ip,
 					identifier: identifier
 				};
