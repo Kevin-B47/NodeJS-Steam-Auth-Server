@@ -4,6 +4,7 @@ var steamAuth = require('../openid/steam-auth');
 var Session = require('../sql/session_model');
 var Steam_API = require('../steam_api/steam_funcs');
 var CFG = require('../../config');
+
 router.get('/login', steamAuth.authenticate('steam'));
 
 router.get('/logout', async function(req, res) {
@@ -11,7 +12,7 @@ router.get('/logout', async function(req, res) {
 		const session = new Session(req.sessionID);
 		session.delete().catch((err) => console.log(err));
 		req.logout();
-		res.status(200).json({ msg: 'C u l8tr' });
+		res.status(200).json({ msg: 'You have logged out.' });
 	} else {
 		res.status(403).json({ error: 'false' });
 	}
@@ -30,7 +31,7 @@ router.get(
 	},
 	steamAuth.authenticate('steam', { failureRedirect: '/' }),
 	function(req, res) {
-		res.redirect(CFG.SHOP_URL);
+		res.redirect(CFG.ON_AUTH_RETURN_URL);
 	}
 );
 

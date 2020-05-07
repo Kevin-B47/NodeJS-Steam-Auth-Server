@@ -3,12 +3,15 @@ PORT=8080
 SESSION_SECRET=
 STEAM_API_KEY=
 
-CORS_ORIGIN=http://localhost:3000/
 AUTH_SUCCESS_REDIRECT=http://localhost:3000/
 AUTH_FAILURE_REDIRECT=http://localhost:3000/
 
-SQL_IP=localhost
-SQL_PORT=3306
+CORS_ORIGIN=http://localhost:3000
+
+SHOW_ERRORS=true
+
+SQL_IP=
+SQL_PORT=
 SQL_DB_USER=
 SQL_DB_PASS=
 SQL_DB_NAME=
@@ -20,3 +23,5 @@ CLEAR_EXPIRED=true
 
 OPENID_RETURN_URL=http://localhost:8080/auth/return
 OPENID_REALM_URL=http://localhost:8080/
+
+ON_AUTH_RETURN_URL=
